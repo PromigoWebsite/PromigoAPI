@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Testpertama;
-
+use App\Http\Controllers\PromoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,4 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::get('testdoang',[Testpertama::class,'test']);
+//Promo
+Route::post('promos',[PromoController::class,'items']);
+Route::prefix('promo')->group(function(){
+});
