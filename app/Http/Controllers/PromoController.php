@@ -38,4 +38,24 @@ class PromoController extends Controller
         }
         return respose()->json($promo);
     }
+
+    public function newestPromo(Request $request){
+        $newestPromo = Promo::orderBy('created_at','DESC')
+                            ->take(5)
+                            ->get();
+
+        return response()->json($newestPromo);
+    }
+
+    public function recommendation(Request $request){
+        $recommendation = Promo::join('wishlists', 'wishlists.promo_id', '=', 'promos.id')
+                            ->select('promos.*', DB::raw('COUNT(wishlists.promo_id) as wishlist_count'))
+                            ->groupBy('promos.id')
+                            ->orderBy('wishlist_count', 'DESC')
+                            ->take(5)
+                            ->get();
+        
+        return response()->json($recommendation);
+    }
 }
+

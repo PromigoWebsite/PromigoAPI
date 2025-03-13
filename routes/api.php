@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Testpertama;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\BrandController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,6 +22,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 //Promo
-Route::post('promos',[PromoController::class,'items']);
-Route::prefix('promo')->group(function(){
+Route::get('/promos',[PromoController::class,'items']);
+Route::prefix('/promo')->group(function(){
+    Route::get('/recommendation',[PromoController::class,'recommendation']);
+    Route::get('/newest',[PromoController::class,'newestPromo']);
 });
+
+// Brand
+Route::get('/brands',[BrandController::class,'items']);
