@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use Illuminate\Support\Facades\Response;
 
 class BrandController extends Controller
 {
@@ -26,7 +27,7 @@ class BrandController extends Controller
                 $brand = $brand->where($key,$value);
             }
         }
-        if($request->has($sorting)){
+        if($request->has('sorting')){
             foreach($request->sorting as $key => $value){
                 $brand = $brand->orderBy($key,$value);
             }
@@ -35,6 +36,6 @@ class BrandController extends Controller
             $brand = $brand->orderBy('name','ASC')
                             ->paginate($request->per_page);
         }
-        return respose()->json($brand);
+        return Response()->json($brand);
     }
 }

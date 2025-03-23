@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Promo;
 use App\Models\Role;
+use Illuminate\Support\Facades\DB;
+
 
 class PromoController extends Controller
 {
@@ -27,7 +29,7 @@ class PromoController extends Controller
                 $promo = $promo->where($key,$value);
             }
         }
-        if($request->has($sorting)){
+        if($request->has('sorting')){
             foreach($request->sorting as $key => $value){
                 $promo = $promo->orderBy($key,$value);
             }
@@ -36,7 +38,7 @@ class PromoController extends Controller
             $promo = $promo->orderBy('nama_promo','ASC')
                             ->paginate($request->per_page);
         }
-        return respose()->json($promo);
+        return response()->json($promo);
     }
 
     public function newestPromo(Request $request){

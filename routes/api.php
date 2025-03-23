@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Testpertama;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CloudinaryController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,3 +32,10 @@ Route::prefix('/promo')->group(function(){
 
 // Brand
 Route::get('/brands',[BrandController::class,'items']);
+
+//Cloudinary
+Route::prefix('/drive')->group(function(){
+    Route::delete('/delete',[CloudinaryController::class,'fileDelete']);
+    Route::get('/exist',[CloudinaryController::class,'fileExist']);
+    Route::post('/upload',[CloudinaryController::class,'fileUpload']);
+});
