@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use Cloudinary\Api\Admin\AdminApi;
+use Cloudinary\Api\Upload\UploadApi;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class CloudinaryController extends Controller
@@ -38,7 +41,7 @@ class CloudinaryController extends Controller
     public function fileUpload(Request $request){
         try {
             
-            // $filePath = storage_path('app/public/KFCPromotional.jpg');
+            $filePath = storage_path('app/public/KFCPromotional.jpg');
         
             $response = $this->uploadAPI->upload($filePath,[
                 'use_filename'=>true,
