@@ -59,5 +59,15 @@ class PromoController extends Controller
         
         return response()->json($recommendation);
     }
+
+    public function promoDetail($id)
+    {
+        $promo = Promo::join('brands' , 'promos.brand_id', '=' , 'brands.id')
+                    ->select('promos.id', 'promos.nama_promo' , 'promos.diskon' , 'promos.description' , 'promos.status', 'promos.started_at', 'promos.ended_at')
+                    ->where('promos.id', $id)
+                    ->first(); 
+        
+        return response()->json($promo);
+    }
 }
 

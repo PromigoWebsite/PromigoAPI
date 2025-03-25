@@ -28,6 +28,7 @@ Route::get('/promos',[PromoController::class,'items']);
 Route::prefix('/promo')->group(function(){
     Route::get('/recommendation',[PromoController::class,'recommendation']);
     Route::get('/newest',[PromoController::class,'newestPromo']);
+    Route::get('/id', [PromoController::class,'promoDetail']);
 });
 
 // Brand
