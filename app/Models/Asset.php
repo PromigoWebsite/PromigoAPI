@@ -10,10 +10,12 @@ class Asset extends Model
     use HasFactory;
     
     protected $fillable= [
-        'promo_id',
+        'public_id',
+        'asset_id',
         'path',
         'mime_type',
         'size',
         'file_name',
+        'promo_id',
     ];
 }

@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
-use Cloudinary\Api\Admin\AdminApi;
-use Cloudinary\Api\Upload\UploadApi;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class CloudinaryController extends Controller
@@ -23,6 +20,10 @@ class CloudinaryController extends Controller
 
     public function fileDelete(Request $request){
         try {
+            $targetFile = Asset::where('public_id',$request->publicId)
+                            ->first();
+            $targetFile->delete();
+
             $response = $this->uploadAPI->destroy($request->publicId);
             
             if($response) {
@@ -41,18 +42,20 @@ class CloudinaryController extends Controller
     public function fileUpload(Request $request){
         try {
             
-            $filePath = storage_path('app/public/KFCPromotional.jpg');
-        
+            $filePath = storage_path($request->path);
+
             $response = $this->uploadAPI->upload($filePath,[
                 'use_filename'=>true,
             ]); 
 
             $material = [
-                'promo_id' => $request->promo_id,
-                'path' => $response['public_id'],
+                'public_id' => $response['public_id'],
+                'asset_id' => $response['asset_id'],
+                'path' => $response['secure_url'],
                 'mime_type' => $response['resource_type'].'/'.$response['format'],
                 'size' => $response['bytes'],
                 'file_name' => $response['display_name'],
+                'promo_id' => $request->promo_id,
             ];
 
             $asset = Asset::create($material);
