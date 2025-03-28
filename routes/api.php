@@ -34,7 +34,7 @@ Route::prefix('/promo')->group(function(){
 // Brand
 Route::get('/brands',[BrandController::class,'items']);
 
-//Cloudinary
+//cloud
 Route::prefix('/drive')->group(function(){
     Route::delete('/delete',[CloudinaryController::class,'fileDelete']);
     Route::get('/exist',[CloudinaryController::class,'fileExist']);
