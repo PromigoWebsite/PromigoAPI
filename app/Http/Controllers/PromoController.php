@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\DB;
 class PromoController extends Controller
 {
     public function items(Request $request){
+        dd('string');
         if($request->has('page') && $request->page === "all"){
-            $promo = Promo::get();
+            $promo = Promo::get(); 
             return response()->json($promo);
         }
         if($request->has('search')){
@@ -60,6 +61,7 @@ class PromoController extends Controller
         return response()->json($recommendation);
     }
 
+    //promodetail
     public function promoDetail($id)
     {
         $promo = Promo::join('brands' , 'promos.brand_id', '=' , 'brands.id')
