@@ -6,6 +6,7 @@ use App\Http\Controllers\Testpertama;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CloudinaryController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,3 +41,10 @@ Route::prefix('/drive')->group(function(){
     Route::get('/exist',[CloudinaryController::class,'fileExist']);
     Route::post('/upload',[CloudinaryController::class,'fileUpload']);
 });
+
+//Profile
+Route::get('/profiles', [ProfileController::class, 'index']);
+Route::post('/profiles', [ProfileController::class, 'store']);
+Route::get('/profiles/{id}', [ProfileController::class, 'show']);
+Route::put('/profiles/{id}', [ProfileController::class, 'update']);
+Route::delete('/profiles/{id}', [ProfileController::class, 'destroy']);
