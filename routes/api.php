@@ -43,8 +43,7 @@ Route::prefix('/drive')->group(function(){
 });
 
 //Profile
-Route::get('/profiles', [ProfileController::class, 'index']);
-Route::post('/profiles', [ProfileController::class, 'store']);
-Route::get('/profiles/{id}', [ProfileController::class, 'show']);
-Route::put('/profiles/{id}', [ProfileController::class, 'update']);
-Route::delete('/profiles/{id}', [ProfileController::class, 'destroy']);
+Route::get('/profiles', [ProfileController::class, 'fetchProfileById']);
+Route::prefix('/profile')->group(function(){
+    Route::patch('/edit',[ProfileController::class, 'editProfileById']);
+});
