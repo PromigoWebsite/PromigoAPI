@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 class PromoController extends Controller
 {
     public function items(Request $request){
-        dd('string');
         if($request->has('page') && $request->page === "all"){
             $promo = Promo::get(); 
             return response()->json($promo);
