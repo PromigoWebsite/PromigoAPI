@@ -42,20 +42,40 @@ class PromoController extends Controller
     }
 
     public function newestPromo(Request $request){
-        $newestPromo = Promo::orderBy('created_at','DESC')
-                            ->take(5)
+        $newestPromo = Promo::join('assets','promos.id','=','assets.promo_id')
+                            ->select(
+                                'promos.*',
+                                'assets.path',
+                            )
+                            ->orderBy('created_at','DESC')
+                            ->take(4)
                             ->get();
 
         return response()->json($newestPromo);
     }
 
     public function recommendation(Request $request){
-        $recommendation = Promo::join('wishlists', 'wishlists.promo_id', '=', 'promos.id')
-                            ->select('promos.*', DB::raw('COUNT(wishlists.promo_id) as wishlist_count'))
-                            ->groupBy('promos.id')
-                            ->orderBy('wishlist_count', 'DESC')
-                            ->take(5)
-                            ->get();
+        $recommendation = Promo::join('assets', 'promos.id', '=', 'assets.promo_id')
+                                ->join('brands','brands.id','=','promos.brand_id')
+                                ->joinSub(function($query) {
+                                    $query->select(
+                                        'promo_id',
+                                        DB::raw('COUNT(*) as wishlist_count'),
+                                        )
+                                        ->from('wishlists')
+                                        ->groupBy('promo_id');
+                                }, 'wish_counts', function($join) {
+                                    $join->on('promos.id', '=', 'wish_counts.promo_id');
+                                })
+                                ->select(
+                                    'promos.*',
+                                    'assets.path',
+                                    'brands.name as brand_name',
+                                    'brands.logo',
+                                )
+                                ->orderBy('wish_counts.wishlist_count', 'DESC')
+                                ->take(4)
+                                ->get();
         
         return response()->json($recommendation);
     }
