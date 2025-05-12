@@ -11,18 +11,48 @@ use Illuminate\Support\Facades\DB;
 class PromoController extends Controller
 {
     public function items(Request $request){
+        // dd(request()->all());
         if($request->has('page') && $request->page === "all"){
-            $promo = Promo::get(); 
+            
+            $promo = Promo::join('assets','promos.id','=','assets.promo_id')
+                            ->join('brands','brands.id','=','promos.brand_id')
+                            ->select(
+                                'brands.name as brand_name',
+                                'promos.*',
+                                'assets.path',
+                            );
+            if($request->search != ''){
+                $promo = $promo->where('promos.name','LIKE','%'.$request->search.'%');
+            }
+            if($request->has('filter')){
+                foreach($request->filter as $filterby => $filterValue){
+                    if ($filterValue === '' || $filterValue === null) {
+                        continue;
+                    }
+                    if($filterby == 'brand'){
+                        $promo = $promo->where('brands.name',$filterValue);
+                    }else{
+                        $promo = $promo->where('promos.'.$filterby,$filterValue);
+                    }
+                   
+                }
+            }
+            if($request->sort != ''){
+                $promo = $promo->orderBy('created_at',$request->sort);
+            }
+            $promo = $promo->get();
+            // dd($promo);
             return response()->json($promo);
         }
         if($request->has('search')){
-            $searchValue = $request->search;
-            $promo = Promo::where(function ($query) use($searchValue){
-                $query->where('nama_promo',$searchValue);
-            });
+            $promo = Promo::where('name','%'.$request->search.'%');
         }
         else{
-            $promo = Promo::query();
+            $promo = Promo::join('assets','promos.id','=','assets.promo_id')
+                        ->select(
+                            'promos.*',
+                            'assets.path',
+                        );
         }
         if($request->has('filter')){
             foreach($request->filter as $key => $value){
@@ -31,11 +61,12 @@ class PromoController extends Controller
         }
         if($request->has('sorting')){
             foreach($request->sorting as $key => $value){
-                $promo = $promo->orderBy($key,$value);
+                $promo = $promo->orderBy($key,$value)
+                            ->paginate($request->per_page);
             }
         }
         else{
-            $promo = $promo->orderBy('nama_promo','ASC')
+            $promo = $promo->orderBy('name','ASC')
                             ->paginate($request->per_page);
         }
         return response()->json($promo);
@@ -74,6 +105,7 @@ class PromoController extends Controller
                                     'brands.logo',
                                 )
                                 ->orderBy('wish_counts.wishlist_count', 'DESC')
+                                ->skip(1)
                                 ->take(4)
                                 ->get();
         
@@ -84,7 +116,7 @@ class PromoController extends Controller
     public function promoDetail($id)
     {
         $promo = Promo::join('brands' , 'promos.brand_id', '=' , 'brands.id')
-                    ->select('promos.id', 'promos.nama_promo' , 'promos.diskon' , 'promos.description' , 'promos.status', 'promos.started_at', 'promos.ended_at')
+                    ->select('promos.id', 'promos.name' , 'promos.diskon' , 'promos.description' , 'promos.status', 'promos.started_at', 'promos.ended_at')
                     ->where('promos.id', $id)
                     ->first(); 
         
