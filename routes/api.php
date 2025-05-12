@@ -6,6 +6,7 @@ use App\Http\Controllers\Testpertama;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CloudinaryController;
+use App\Http\Controllers\DriveController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -29,7 +30,7 @@ Route::get('/promos',[PromoController::class,'items']);
 Route::prefix('/promo')->group(function(){
     Route::get('/recommendation',[PromoController::class,'recommendation']);
     Route::get('/newest',[PromoController::class,'newestPromo']);
-    Route::get('/id', [PromoController::class,'promoDetail']);
+    Route::get('{id}', [PromoController::class,'promoDetail']);
 });
 
 // Brand
@@ -39,11 +40,13 @@ Route::get('/brands',[BrandController::class,'items']);
 Route::prefix('/drive')->group(function(){
     Route::delete('/delete',[CloudinaryController::class,'fileDelete']);
     Route::get('/exist',[CloudinaryController::class,'fileExist']);
-    Route::post('/upload',[CloudinaryController::class,'fileUpload']);
+    Route::post('/upload',[DriveController::class,'fileUpload']);
 });
+
 
 //Profile
 Route::get('/profiles', [ProfileController::class, 'fetchProfileById']);
 Route::prefix('/profile')->group(function(){
     Route::patch('/edit',[ProfileController::class, 'editProfileById']);
 });
+

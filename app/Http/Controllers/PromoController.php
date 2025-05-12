@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use App\Models\Promo;
 use App\Models\Role;
@@ -115,12 +116,28 @@ class PromoController extends Controller
     //promodetail
     public function promoDetail($id)
     {
-        $promo = Promo::join('brands' , 'promos.brand_id', '=' , 'brands.id')
-                    ->select('promos.id', 'promos.name' , 'promos.diskon' , 'promos.description' , 'promos.status', 'promos.started_at', 'promos.ended_at')
-                    ->where('promos.id', $id)
-                    ->first(); 
-        
-        return response()->json($promo);
+        $promo = Promo::join('assets','promos.id','=','assets.promo_id')
+                            ->select(
+                                'promos.*',
+                                'assets.path',
+                            )
+                            ->where('promos.id',$id)
+                            ->first();
+
+        $brandInfo = Brand::join('promos','promos.brand_id','=','brands.id')
+                            ->join('users','users.id','=','brands.user_id')
+                            ->select(
+                                'users.mobile',
+                                'brands.*',
+                            )
+                            ->where('brands.id',$promo->brand_id)
+                            ->groupBy('brands.id','users.mobile')
+                            ->first();
+        // dd($promo);
+        return response()->json([
+            'promo' => $promo,
+            'brandInfo' => $brandInfo,
+        ]);
     }
 }
 
