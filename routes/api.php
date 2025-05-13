@@ -8,6 +8,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CloudinaryController;
 use App\Http\Controllers\DriveController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,3 +51,7 @@ Route::prefix('/profile')->group(function(){
     Route::patch('/edit',[ProfileController::class, 'editProfileById']);
 });
 
+//Report
+Route::prefix('/report')->group(function(){
+    Route::post('{id}', [ReportController::class,'addReport']);
+});
