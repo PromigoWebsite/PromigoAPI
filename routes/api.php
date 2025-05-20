@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthenticateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Testpertama;
@@ -7,6 +8,7 @@ use App\Http\Controllers\PromoController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CloudinaryController;
 use App\Http\Controllers\DriveController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 
@@ -21,19 +23,31 @@ use App\Http\Controllers\ReportController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
+Route::post('/register',[AuthenticateController::class,'register']);
+Route::post('/login',[AuthenticateController::class,'login']);
+Route::middleware('auth:sanctum')->post('/logout',[AuthenticateController::class,'logout']);
+Route::middleware('auth:sanctum')->get('/user', [AuthenticateController::class, 'user']);
 
 //Promo
 Route::get('/promos',[PromoController::class,'items']);
 Route::prefix('/promo')->group(function(){
     Route::get('/recommendation',[PromoController::class,'recommendation']);
     Route::get('/newest',[PromoController::class,'newestPromo']);
+    Route::get('liked/{id}', [PromoController::class, 'likedPromo']);
     Route::get('{id}', [PromoController::class,'promoDetail']);
 });
 
+//Favorite
+Route::middleware('auth:sanctum')->prefix('/favorite')->group(function(){
+    Route::get('/list', [FavoriteController::class, 'list']);
+    Route::delete('/delete/{id}', [FavoriteController::class, 'removeFavorite']);
+    Route::put('/add/{id}', [FavoriteController::class, 'addFavorite']);
+});
+    
 // Brand
 Route::get('/brands',[BrandController::class,'items']);
 
