@@ -47,6 +47,11 @@ Route::middleware('auth:sanctum')->prefix('/favorite')->group(function(){
     Route::delete('/delete/{id}', [FavoriteController::class, 'removeFavorite']);
     Route::put('/add/{id}', [FavoriteController::class, 'addFavorite']);
 });
+
+//Profile
+Route::middleware('auth:sanctum')->prefix('/profiles')->group(function () {
+    Route::post('/edit/{id}', [ProfileController::class, 'editProfileById']);
+});
     
 // Brand
 Route::get('/brands',[BrandController::class,'items']);

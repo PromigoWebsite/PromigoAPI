@@ -9,44 +9,48 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class AuthenticateController extends Controller
-{
-    private function validateUser($request){
+class AuthenticateController extends Controller {
+    private function validateUser($request) {
         try {
             $user = User::where('email', $request->email)->first();
-            if(!$user){
-                abort(401,"Email tidak ditemukan");
+            if (!$user) {
+                abort(401, "Email tidak ditemukan");
             }
-            
-            $checkPassword = Hash::check($request->password, $user->password);;
-            if($checkPassword){
+
+            $checkPassword = Hash::check($request->password, $user->password);
+            if ($checkPassword) {
                 return $user;
             }
 
-            abort(401,"Password tidak sesuai");
+            abort(401, "Password tidak sesuai");
         } catch (Exception $e) {
             throw $e;
         }
-        
     }
-    
-    public function login(Request $request)
-    {
+
+    public function login(Request $request) {
         try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
+            $request->validate(
+                [
+                    'email' => 'required|email',
+                    'password' => 'required',
+                ],
+                [
+                    'email.required' => 'Email harus diisi',
+            
+                    'password.required' => 'Password harus diisi',
+                ]
+            );
 
             $user = $this->validateUser($request);
             $user->update(['updated_at' => now()]);
-            
+
             $expiration  = $request->rememberMe;
-            $token = $user->createToken('auth_token',['*'], $expiration ? now()->addDays(30) : now()->addDays(7))->plainTextToken;
-            $cookie = cookie('promigo_token', $token, $expiration ? 60*24*30: config('session.lifetime'));
-            
+            $token = $user->createToken('auth_token', ['*'], $expiration ? now()->addDays(30) : now()->addDays(7))->plainTextToken;
+            $cookie = cookie('promigo_token', $token, $expiration ? 60 * 24 * 30 : config('session.lifetime'));
+
             Auth::loginUsingId($user->id);
-            
+
             return response()->json([
                 'user' => $user,
                 'access_token' => $token,
@@ -58,14 +62,27 @@ class AuthenticateController extends Controller
         }
     }
 
-    public function user(){
-        $user =  Auth::user();
-        return response()->json([
-            'user' => $user,
-        ]);
+    public function user() {
+        try {
+            $user =  Auth::user();
+            if ($user) {
+                $user = User::join('roles', 'roles.id', '=', 'users.role_id')
+                    ->where('users.id', $user->id)
+                    ->select(
+                        'users.*',
+                        'roles.name as role',
+                    )
+                    ->first();
+            }
+            return response()->json([
+                'user' => $user,
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        } 
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request) {
         if (Auth::user()) {
             Auth::user()->tokens()->delete();
         }
@@ -78,18 +95,40 @@ class AuthenticateController extends Controller
         ])->withCookie($cookie);
     }
 
-    public function register(Request $request){
+
+
+    public function register(Request $request) {
         try {
-            $request->validate([
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:6',
-                'username' => 'required|string',
-                'mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:users,mobile',
-            ]);
+            $request->validate(
+                [
+                    'email' => 'required|email|unique:users,email',
+                    'password' => 'required|min:6|regex:/[A-Z]/',
+                    'username' => 'required|string',
+                    'mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:users,mobile',
+                ],
+                [
+                    'email.required' => 'Email harus diisi',
+                    'email.email' => 'Format email tidak valid',
+                    'email.unique' => 'Email sudah terdaftar',
+
+
+                    'password.required' => 'Password harus diisi',
+                    'password.min' => 'Password minimal 6 karakter',
+                    'password.regex' => 'Password harus memiliki minimal 1 huruf kapital',
+
+                    'username.required' => 'Username harus diisi',
+
+                    'mobile.required' => 'Nomor telepon harus diisi',
+                    'mobile.regex' => 'Format nomor telepon tidak valid',
+                    'mobile.min' => 'Nomor telepon minimal 10 digit',
+                    'mobile.unique' => 'Nomor telepon sudah terdaftar',
+                ]
+            );
+
 
             $user = [
                 'email' => $request->email,
-                'password' => Hash::make($request->password), 
+                'password' => Hash::make($request->password),
                 'username' => $request->username,
                 'mobile' => $request->mobile,
             ];

@@ -147,10 +147,14 @@ class PromoController extends Controller {
             ->where('brands.id', $promo->brand_id)
             ->groupBy('brands.id', 'users.mobile')
             ->first();
-
-        $isLike = Favorite::where('promo_id', $id)
-            ->where('user_id', $user->id)
-            ->first();
+        
+        $isLike = '';
+        if($user != null){
+            $isLike = Favorite::where('promo_id', $id)
+                ->where('user_id', $user->id)
+                ->first();    
+        }
+        
 
         return response()->json([
             'promo' => $promo,
@@ -161,9 +165,12 @@ class PromoController extends Controller {
 
     public function likedPromo($id){
         $user = Auth::user();
-        $isLike = Favorite::where('promo_id', $id)
-            ->where('user_id', $user->id)
-            ->first();
+        $isLike = '';
+        if ($user != null) {
+            $isLike = Favorite::where('promo_id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+        }
 
         return response()->json([
             'isLike' => $isLike ? true : false,
