@@ -43,7 +43,7 @@ class PromoController extends Controller {
                 }
             }
             if ($request->sort != '') {
-                $promo = $promo->orderBy('created_at', $request->sort);
+                $promo = $promo->orderBy('promos.created_at', $request->sort);
             }
             $promo = $promo->get();
             // dd($promo);
