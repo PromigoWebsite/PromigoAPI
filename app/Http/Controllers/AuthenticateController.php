@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -37,7 +38,7 @@ class AuthenticateController extends Controller {
                 ],
                 [
                     'email.required' => 'Email harus diisi',
-            
+                    'email.email' => 'Format email tidak sesuai',
                     'password.required' => 'Password harus diisi',
                 ]
             );
@@ -64,22 +65,38 @@ class AuthenticateController extends Controller {
 
     public function user() {
         try {
-            $user =  Auth::user();
+            $user = Auth::user();
             if ($user) {
-                $user = User::join('roles', 'roles.id', '=', 'users.role_id')
+                $userData = User::join('roles', 'roles.id', '=', 'users.role_id')
                     ->where('users.id', $user->id)
                     ->select(
                         'users.*',
-                        'roles.name as role',
-                    )
-                    ->first();
+                        'roles.name as role'
+                    );
+
+                $tempUser = $userData->first();
+                    
+                if ($tempUser && $tempUser->role === 'Seller') {
+                    $user = User::join('roles', 'roles.id', '=', 'users.role_id')
+                        ->join('brands', 'brands.user_id', '=', 'users.id')
+                        ->where('users.id', $user->id)
+                        ->select(
+                            'users.*',
+                            'roles.name as role',
+                            'brands.id as brand_id'
+                        )
+                        ->first();
+                } else {
+                    $user = $tempUser;
+                }
             }
+
             return response()->json([
                 'user' => $user,
             ]);
         } catch (Exception $e) {
             throw $e;
-        } 
+        }
     }
 
     public function logout(Request $request) {
@@ -125,12 +142,15 @@ class AuthenticateController extends Controller {
                 ]
             );
 
+            $role = Role::where('name', 'User')->value('id');
+
 
             $user = [
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'username' => $request->username,
                 'mobile' => $request->mobile,
+                'role_id' => $role,
             ];
 
             User::create($user);

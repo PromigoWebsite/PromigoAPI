@@ -8,34 +8,29 @@ use Illuminate\Support\Facades\Response;
 
 class BrandController extends Controller
 {
-    public function items(Request $request){
-        if($request->has('page') && $request->page === "all"){
+    public function items(Request $request) {
+        //ALL
+        if ($request->has('page') && $request->page === "all") {
             $brand = Brand::get();
-            return response()->json($brand);
-        }
-        if($request->has('search')){
-            $searchValue = $request->search;
-            $brand = Brand::where(function ($query) use($searchValue){
-                $query->where('nama_promo',$searchValue);
-            });
-        }
-        else{
+        } else {
+            //SEARCH
             $brand = Brand::query();
-        }
-        if($request->has('filter')){
-            foreach($request->filter as $key => $value){
-                $brand = $brand->where($key,$value);
+            if ($request->has('search') && $request->search) {
+                $brand = $brand->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
-        }
-        if($request->has('sorting')){
-            foreach($request->sorting as $key => $value){
-                $brand = $brand->orderBy($key,$value);
+
+            if ($request->has('sorting') && $request->sorting) {
+                foreach ($request->sorting as $filter => $value) {
+                    // if($filter == 'brand'){
+                    //     $promo->orderBy("brands.". $filter, $value);
+                    // }
+                    // $promo->orderBy('promos.'. $filter, $value);
+                    $brand->orderBy($filter, $value);
+                }
             }
+
+            $brand = $brand->paginate($request->per_page);
         }
-        else{
-            $brand = $brand->orderBy('name','ASC')
-                            ->paginate($request->per_page);
-        }
-        return Response()->json($brand);
+        return response()->json($brand);
     }
 }

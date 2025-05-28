@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\adminPromoController;
 use App\Http\Controllers\AuthenticateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Testpertama;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\BrandPromoController;
 use App\Http\Controllers\CloudinaryController;
 use App\Http\Controllers\DriveController;
 use App\Http\Controllers\FavoriteController;
@@ -41,6 +43,19 @@ Route::prefix('/promo')->group(function(){
     Route::get('{id}', [PromoController::class,'promoDetail']);
 });
 
+//Admin controller List
+Route::middleware(['auth:sanctum', 'role:Admin'])->prefix('/admin')->group(function(){
+    Route::get('/list',[adminPromoController::class,'items']);
+    Route::delete('/delete/{id}', [adminPromoController::class, 'deletePromo']);
+});
+
+//Seller Controller list
+Route::middleware(['auth:sanctum', 'role:Seller'])->prefix('/seller')->group(function () {
+    Route::get('/list/{id}', [BrandPromoController::class, 'items']);
+    Route::delete('/delete/{id}', [BrandPromoController::class, 'deletePromo']);
+});
+
+
 //Favorite
 Route::middleware('auth:sanctum')->prefix('/favorite')->group(function(){
     Route::get('/list', [FavoriteController::class, 'list']);
@@ -61,13 +76,6 @@ Route::prefix('/drive')->group(function(){
     Route::delete('/delete',[CloudinaryController::class,'fileDelete']);
     Route::get('/exist',[CloudinaryController::class,'fileExist']);
     Route::post('/upload',[DriveController::class,'fileUpload']);
-});
-
-
-//Profile
-Route::get('/profiles', [ProfileController::class, 'fetchProfileById']);
-Route::prefix('/profile')->group(function(){
-    Route::patch('/edit',[ProfileController::class, 'editProfileById']);
 });
 
 //Report
