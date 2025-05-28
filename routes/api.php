@@ -70,6 +70,11 @@ Route::middleware('auth:sanctum')->prefix('/profiles')->group(function () {
     
 // Brand
 Route::get('/brands',[BrandController::class,'items']);
+Route::prefix('/brand')->group(function () {
+    Route::prefix('/{id}')->group(function () {
+        Route::delete('/delete', [BrandController::class, 'deleteById']);
+    });
+});
 
 //cloud
 Route::prefix('/drive')->group(function(){
@@ -80,6 +85,9 @@ Route::prefix('/drive')->group(function(){
 
 //Report
 Route::prefix('/report')->group(function(){
-    Route::post('{id}', [ReportController::class,'addReport']);
+    Route::prefix('/{id}')->group(function () {
+        Route::post('/', [ReportController::class, 'addReport']);
+        Route::delete('/delete', [ReportController::class, 'deleteReport']);
+    });    
     Route::get('/list',[ReportController::class,'items']);
 });

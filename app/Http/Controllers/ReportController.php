@@ -16,6 +16,7 @@ class ReportController extends Controller
             ->join('promos', 'promos.id', '=', 'reports.promo_id')
             ->join('brands', 'brands.id', '=', 'reports.brand_id')
             ->select(
+                'reports.id as id',
                 'promos.name as promo_name',
                 'brands.name as brand_name',
                 'users.email as email',
@@ -33,7 +34,7 @@ class ReportController extends Controller
             //SEARCH
             $report = $this->baseQuery();
             if ($request->has('search') && $request->search) {
-                $report = $report->whereRaw('LOWER(promo_name) LIKE ?', ['%' . strtolower($request->search) . '%']);
+                $report = $report->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
 
             if ($request->has('sorting') && $request->sorting) {
@@ -75,5 +76,14 @@ class ReportController extends Controller
             throw $e;
         }
         
+    }
+
+    public function deleteReport($id){
+        try {
+            $deletedReport = Report::findOrFail($id)->delete();
+            return response()->json($deletedReport);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }

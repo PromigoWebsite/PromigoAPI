@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use App\Models\Favorite;
+use App\Models\Promo;
+use App\Models\Report;
+use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
 class BrandController extends Controller
@@ -32,5 +37,25 @@ class BrandController extends Controller
             $brand = $brand->paginate($request->per_page);
         }
         return response()->json($brand);
+    }
+    function deleteById($id){
+        DB::beginTransaction();
+        try {
+            $promos = Promo::where('brand_id', $id)->get();
+            $reports = Promo::where('brand_id', $id)->get();
+            foreach ($promos as $promo) {
+                Favorite::where('promo_id', $promo->id)->delete();
+                $promo->delete();
+            }
+            foreach ($reports as $report) {
+                $report->delete();
+            }
+            $deletedBrand = Brand::findOrFail($id)->delete();
+            DB::commit();
+            return response()->json($deletedBrand);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }
