@@ -81,4 +81,5 @@ Route::prefix('/drive')->group(function(){
 //Report
 Route::prefix('/report')->group(function(){
     Route::post('{id}', [ReportController::class,'addReport']);
+    Route::get('/list',[ReportController::class,'items']);
 });
