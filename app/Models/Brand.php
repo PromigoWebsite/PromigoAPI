@@ -12,5 +12,7 @@ class Brand extends Model
         'user_id',
         'name',
         'address',
+        'logo',
+        'category',
     ];
 }

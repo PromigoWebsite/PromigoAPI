@@ -13,6 +13,7 @@ use App\Http\Controllers\DriveController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SellerRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +56,14 @@ Route::middleware(['auth:sanctum', 'role:Seller'])->prefix('/seller')->group(fun
     Route::delete('/delete/{id}', [BrandPromoController::class, 'deletePromo']);
 });
 
+//Seller Request
+Route::middleware(['auth:sanctum', 'role:Admin'])->prefix('/request')->group(function () {
+    Route::get('/list', [SellerRequestController::class, 'items']);
+    Route::prefix('/{id}')->group(function () {
+        Route::delete('/delete', [SellerRequestController::class, 'deleteRequest']);
+        Route::post('/accept', [SellerRequestController::class, 'acceptRequest']);
+    });
+});
 
 //Favorite
 Route::middleware('auth:sanctum')->prefix('/favorite')->group(function(){
