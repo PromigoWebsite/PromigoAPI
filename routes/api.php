@@ -40,14 +40,22 @@ Route::get('/promos',[PromoController::class,'items']);
 Route::prefix('/promo')->group(function(){
     Route::get('/recommendation',[PromoController::class,'recommendation']);
     Route::get('/newest',[PromoController::class,'newestPromo']);
-    Route::get('liked/{id}', [PromoController::class, 'likedPromo']);
-    Route::get('{id}', [PromoController::class,'promoDetail']);
+    Route::prefix('/{id}')->group(function () {
+        Route::get('liked', [PromoController::class, 'likedPromo']);
+        Route::get('/', [PromoController::class, 'promoDetail']);
+    });
+    
 });
 
 //Admin controller List
 Route::middleware(['auth:sanctum', 'role:Admin'])->prefix('/admin')->group(function(){
     Route::get('/list',[adminPromoController::class,'items']);
-    Route::delete('/delete/{id}', [adminPromoController::class, 'deletePromo']);
+    Route::post('/add', [adminPromoController::class, 'addPromo']);
+    Route::prefix('/{id}')->group(function () {
+        Route::post('/edit', [adminPromoController::class, 'editPromo']);
+        Route::delete('/delete', [adminPromoController::class, 'deletePromo']);
+    });
+   
 });
 
 //Seller Controller list

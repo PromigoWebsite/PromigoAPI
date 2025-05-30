@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Brand;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
 use App\Models\Promo;
-use App\Models\Role;
-use App\Models\User;
-use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\DB;
 
 
@@ -26,7 +23,7 @@ class PromoController extends Controller {
                     'promos.id',
                     'promos.name',
                     'assets.path',
-                );
+                )->where('promos.status','Active');
             if ($request->search != '') {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
@@ -46,7 +43,7 @@ class PromoController extends Controller {
                 $promo = $promo->orderBy('promos.created_at', $request->sort);
             }
             $promo = $promo->get();
-            // dd($promo);
+
             return response()->json($promo);
         }
         if ($request->has('search')) {
@@ -59,7 +56,7 @@ class PromoController extends Controller {
                     'promos.id',
                     'promos.name',
                     'assets.path',
-                );
+                )->where('promos.status', 'Active');
         }
         if ($request->has('filter')) {
             foreach ($request->filter as $key => $value) {
@@ -112,6 +109,7 @@ class PromoController extends Controller {
                 'brands.name as brand_name',
                 'brands.logo',
             )
+            ->where('promos.status', 'Active')
             ->orderBy('wish_counts.wishlist_count', 'DESC')
             ->skip(1)
             ->take(4)

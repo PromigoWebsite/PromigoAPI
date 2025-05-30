@@ -51,7 +51,7 @@ class BrandPromoController extends Controller
             $promo = $promo->paginate($request->per_page);
         }
 
-        $total_promo = Promo::count();
+        $total_promo = Promo::join('brands', 'brands.id', '=', 'promos.brand_id')->where('brands.id', $id)->count();
 
         return response()->json([
             'list' => $promo,
