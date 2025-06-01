@@ -48,10 +48,10 @@ Route::prefix('/promo')->group(function(){
 });
 
 //Admin controller List
-Route::middleware(['auth:sanctum', 'role:Admin'])->prefix('/admin')->group(function(){
-    Route::get('/list',[adminPromoController::class,'items']);
-    Route::post('/add', [adminPromoController::class, 'addPromo']);
-    Route::prefix('/{id}')->group(function () {
+Route::prefix('/admin')->group(function(){
+    Route::middleware(['auth:sanctum', 'role:Admin'])->get('/list',[adminPromoController::class,'items']);
+    Route::middleware('auth:sanctum')->post('/add', [adminPromoController::class, 'addPromo']);
+    Route::middleware('auth:sanctum')->prefix('/{id}')->group(function () {
         Route::post('/edit', [adminPromoController::class, 'editPromo']);
         Route::delete('/delete', [adminPromoController::class, 'deletePromo']);
     });
@@ -88,8 +88,11 @@ Route::middleware('auth:sanctum')->prefix('/profiles')->group(function () {
 // Brand
 Route::get('/brands',[BrandController::class,'items']);
 Route::prefix('/brand')->group(function () {
+    Route::post('/add', [BrandController::class, 'addBrand']);
     Route::prefix('/{id}')->group(function () {
         Route::delete('/delete', [BrandController::class, 'deleteById']);
+        Route::get('/', [BrandController::class, 'getBrandById']);
+        Route::post('/edit', [BrandController::class, 'editBrandById']);
     });
 });
 

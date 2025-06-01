@@ -36,9 +36,19 @@ class ReportController extends Controller
             if ($request->has('search') && $request->search) {
                 $report = $report->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
-
+            if ($request->has('filter') && $request->filter) {
+                foreach ($request->filter as $filter => $value) {
+                    if ($value === "default") {
+                        continue;
+                    }
+                    $report->where('brands.name', $value);
+                }
+            }
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
+                    if($value === "default"){
+                        continue;
+                    }
                     $report->orderBy($filter, $value);
                 }
             }

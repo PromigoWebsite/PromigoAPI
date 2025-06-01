@@ -30,6 +30,7 @@ class adminPromoController extends Controller {
     }
     public function items(Request $request) {
         //ALL
+        // dd($request->all());
         if ($request->has('page') && $request->page === "all") {
             $promo = $this->baseQuery();
             $promo = $promo->orderByDesc('created_at')
@@ -40,13 +41,30 @@ class adminPromoController extends Controller {
             if ($request->has('search') && $request->search) {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
+            if ($request->has('filter') && $request->filter) {
+                foreach ($request->filter as $filter => $value) {
+                    if ($value === "default") {
+                        continue;
+                    }
+                    switch ($filter) {
+                        case 'brand_name':
+                            $promo->where('brands.name', $value);
+                            break;
+                        case 'type':
+                            $promo->where('promos.type', $value);
+                            break;
+                        case 'category':
+                            $promo->where('promos.category', $value);
+                            break;
+                    }
+                }
+            }
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
-                    // if($filter == 'brand'){
-                    //     $promo->orderBy("brands.". $filter, $value);
-                    // }
-                    // $promo->orderBy('promos.'. $filter, $value);
+                    if($value === "default"){
+                        continue;
+                    }
                     $promo->orderBy($filter, $value);
                 }
             }

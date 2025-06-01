@@ -25,6 +25,7 @@ class BrandPromoController extends Controller
         return $promo;
     }
     public function items(Request $request, $id) {
+        // dd($request->all());
         //ALL
         if ($request->has('page') && $request->page === "all") {
             $promo = $this->baseQuery();
@@ -37,13 +38,27 @@ class BrandPromoController extends Controller
             if ($request->has('search') && $request->search) {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
+            if ($request->has('filter') && $request->filter) {
+                foreach ($request->filter as $filter => $value) {
+                    if ($value === "default") {
+                        continue;
+                    }
+                    switch ($filter) {
+                        case 'type':
+                            $promo->where('promos.type', $value);
+                            break;
+                        case 'category':
+                            $promo->where('promos.category', $value);
+                            break;
+                    }
+                }
+            }
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
-                    // if($filter == 'brand'){
-                    //     $promo->orderBy("brands.". $filter, $value);
-                    // }
-                    // $promo->orderBy('promos.'. $filter, $value);
+                    if($value === "default"){
+                        continue;
+                    }
                     $promo->orderBy($filter, $value);
                 }
             }

@@ -38,6 +38,9 @@ class SellerRequestController extends Controller
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
+                    if($value === "default"){
+                        continue;
+                    }
                     $sellerRequest->orderBy($filter, $value);
                 }
             }
