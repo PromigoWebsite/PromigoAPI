@@ -103,8 +103,9 @@ class AuthenticateController extends Controller {
         if (Auth::user()) {
             Auth::user()->tokens()->delete();
         }
-
-        $request->session()->invalidate();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+        }
         $cookie = cookie()->forget('promigo_token');
 
         return response()->json([
