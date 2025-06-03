@@ -100,7 +100,6 @@ class AuthenticateController extends Controller {
     }
 
     public function logout(Request $request) {
-        dd(storage_path());
         if (Auth::user()) {
             Auth::user()->tokens()->delete();
         }
