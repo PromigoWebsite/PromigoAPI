@@ -75,7 +75,7 @@ class AuthenticateController extends Controller {
                     );
 
                 $tempUser = $userData->first();
-
+                    
                 if ($tempUser && $tempUser->role === 'Seller') {
                     $user = User::join('roles', 'roles.id', '=', 'users.role_id')
                         ->join('brands', 'brands.user_id', '=', 'users.id')
@@ -104,14 +104,7 @@ class AuthenticateController extends Controller {
             Auth::user()->tokens()->delete();
         }
 
-        try {
-            if ($request->hasSession()) {
-                $request->session()->invalidate();
-            }
-        } catch (Exception $e) {
-            \Log::warning('Session invalidation failed during logout: ' . $e->getMessage());
-        }
-
+        $request->session()->invalidate();
         $cookie = cookie()->forget('promigo_token');
 
         return response()->json([
