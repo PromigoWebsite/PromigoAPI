@@ -75,7 +75,7 @@ class AuthenticateController extends Controller {
                     );
 
                 $tempUser = $userData->first();
-                    
+
                 if ($tempUser && $tempUser->role === 'Seller') {
                     $user = User::join('roles', 'roles.id', '=', 'users.role_id')
                         ->join('brands', 'brands.user_id', '=', 'users.id')
@@ -100,6 +100,7 @@ class AuthenticateController extends Controller {
     }
 
     public function logout(Request $request) {
+        dd(storage_path());
         if (Auth::user()) {
             Auth::user()->tokens()->delete();
         }
