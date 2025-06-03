@@ -93,6 +93,7 @@ Route::prefix('/brand')->group(function () {
         Route::delete('/delete', [BrandController::class, 'deleteById']);
         Route::get('/', [BrandController::class, 'getBrandById']);
         Route::post('/edit', [BrandController::class, 'editBrandById']);
+        Route::get('/promo', [BrandController::class, 'getRelatedPromo']);
     });
 });
 

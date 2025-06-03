@@ -7,8 +7,7 @@ use DB;
 use Exception;
 use Illuminate\Http\Request;
 
-class SellerRequestController extends Controller
-{
+class SellerRequestController extends Controller {
     private static function baseQuery() {
         $sellerRequest = DB::table('seller_requests as sr')
             ->join('users', 'users.id', '=', 'sr.user_id')
@@ -38,7 +37,7 @@ class SellerRequestController extends Controller
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
-                    if($value === "default"){
+                    if ($value === "default") {
                         continue;
                     }
                     $sellerRequest->orderBy($filter, $value);
@@ -50,7 +49,7 @@ class SellerRequestController extends Controller
         return response()->json($sellerRequest);
     }
 
-    public function deleteRequest($id){
+    public function deleteRequest($id) {
         try {
             $deletedRequest = DB::table('seller_requests as sr')
                 ->where('id', $id)
@@ -74,6 +73,7 @@ class SellerRequestController extends Controller
 
             $brand = Brand::create([
                 'user_id' => $sellerRequest->user_id,
+                'description' => $sellerRequest->description,
                 'name' => $sellerRequest->brand_name,
                 'address' => $sellerRequest->brand_address,
                 'logo' => $sellerRequest->brand_image_path,
@@ -82,7 +82,7 @@ class SellerRequestController extends Controller
 
             DB::table('users')
                 ->where('id', $sellerRequest->user_id)
-                ->update(['role_id' => 2]); 
+                ->update(['role_id' => 2]);
 
             DB::table('seller_requests')
                 ->where('id', $id)

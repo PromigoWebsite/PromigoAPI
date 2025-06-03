@@ -8,8 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class BrandPromoController extends Controller
-{
+class BrandPromoController extends Controller {
     static function baseQuery() {
         $promo = Promo::select(
             'promos.id',
@@ -27,7 +26,7 @@ class BrandPromoController extends Controller
     public function items(Request $request, $id) {
         // dd($request->all());
         //ALL
-        if ($request->has('page') && $request->page === "all") {
+        if ($request->has('page') && $request->page === 0) {
             $promo = $this->baseQuery();
             $promo = $promo->where('brands.id', $id)
                 ->orderByDesc('created_at')
@@ -56,7 +55,7 @@ class BrandPromoController extends Controller
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
-                    if($value === "default"){
+                    if ($value === "default") {
                         continue;
                     }
                     $promo->orderBy($filter, $value);

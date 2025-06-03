@@ -23,29 +23,41 @@ class PromoController extends Controller {
                     'promos.id',
                     'promos.name',
                     'assets.path',
-                )->where('promos.status','Active');
+                )->where('promos.status', 'Active');
+
             if ($request->search != '') {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
+
             if ($request->has('filter')) {
                 foreach ($request->filter as $filterby => $filterValue) {
                     if ($filterValue === '' || $filterValue === null) {
                         continue;
                     }
-                    if ($filterby == 'brand') {
-                        $promo = $promo->where('brands.name', $filterValue);
-                    } else {
-                        $promo = $promo->where('promos.' . $filterby, $filterValue);
+
+                    // Convert comma-separated string to array for multiple values
+                    $filterValues = is_string($filterValue) ? explode(',', $filterValue) : [$filterValue];
+                    $filterValues = array_filter($filterValues); // Remove empty values
+
+                    if (!empty($filterValues)) {
+                        if ($filterby == 'brand') {
+                            $promo = $promo->whereIn('brands.name', $filterValues);
+                        } else {
+                            $promo = $promo->whereIn('promos.' . $filterby, $filterValues);
+                        }
                     }
                 }
             }
+
             if ($request->sort != '') {
                 $promo = $promo->orderBy('promos.created_at', $request->sort);
             }
+
             $promo = $promo->get();
 
             return response()->json($promo);
         }
+
         if ($request->has('search')) {
             $promo = Promo::whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($request->search) . '%']);
         } else {
@@ -58,11 +70,27 @@ class PromoController extends Controller {
                     'assets.path',
                 )->where('promos.status', 'Active');
         }
+
         if ($request->has('filter')) {
             foreach ($request->filter as $key => $value) {
-                $promo = $promo->where($key, $value);
+                if ($value === '' || $value === null) {
+                    continue;
+                }
+
+                // Convert comma-separated string to array for multiple values
+                $filterValues = is_string($value) ? explode(',', $value) : [$value];
+                $filterValues = array_filter($filterValues); // Remove empty values
+
+                if (!empty($filterValues)) {
+                    if ($key == 'brand') {
+                        $promo = $promo->whereIn('brands.name', $filterValues);
+                    } else {
+                        $promo = $promo->whereIn('promos.' . $key, $filterValues);
+                    }
+                }
             }
         }
+
         if ($request->has('sorting')) {
             foreach ($request->sorting as $key => $value) {
                 $promo = $promo->orderBy($key, $value)
@@ -72,24 +100,35 @@ class PromoController extends Controller {
             $promo = $promo->orderBy('name', 'ASC')
                 ->paginate($request->per_page);
         }
+
         return response()->json($promo);
     }
 
     public function newestPromo(Request $request) {
-        $newestPromo = Promo::join('assets', 'promos.id', '=', 'assets.promo_id')
+        $query = Promo::join('assets', 'promos.id', '=', 'assets.promo_id')
+            ->join('brands', 'brands.id', '=', 'promos.brand_id')
             ->select(
                 'promos.name',
+                'brands.name as brand_name',
+                'brands.logo',
                 'promos.id',
+                'promos.category',
                 'assets.path',
             )
-            ->orderBy('promos.created_at', 'DESC')
-            ->take(10)
+            ->where('promos.status', 'Active');
+
+        if ($request->has('category') && $request->category != '' && $request->category != 'all') {
+            $query = $query->where('promos.category', $request->category);
+        }
+
+        $newestPromo = $query->orderBy('promos.created_at', 'DESC')
+            ->take($request->limit ?? 6)
             ->get();
 
         return response()->json($newestPromo);
     }
 
-    public function recommendation(Request $request) {
+    public function recommendation() {
         $recommendation = Promo::join('assets', 'promos.id', '=', 'assets.promo_id')
             ->join('brands', 'brands.id', '=', 'promos.brand_id')
             ->joinSub(function ($query) {
@@ -111,8 +150,7 @@ class PromoController extends Controller {
             )
             ->where('promos.status', 'Active')
             ->orderBy('wish_counts.wishlist_count', 'DESC')
-            ->skip(1)
-            ->take(4)
+            ->take(5)
             ->get();
 
         return response()->json($recommendation);

@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Response;
 use Storage;
 use Str;
 
-class BrandController extends Controller
-{
+class BrandController extends Controller {
     public function items(Request $request) {
         //ALL
         if ($request->has('page') && $request->page === "all") {
@@ -38,7 +37,7 @@ class BrandController extends Controller
 
             if ($request->has('sorting') && $request->sorting) {
                 foreach ($request->sorting as $filter => $value) {
-                    if($value === "default"){
+                    if ($value === "default") {
                         continue;
                     }
                     $brand->orderBy($filter, $value);
@@ -54,10 +53,37 @@ class BrandController extends Controller
         DB::beginTransaction();
         try {
             $brand = Brand::findOrFail($id);
+            $user = User::where('id', $brand->user_id)->first();
             DB::commit();
-            return response()->json($brand);
+            return response()->json([
+                'brand' => $brand,
+                'user' => $user,
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function getRelatedPromo($id) {
+        try {
+            $promo = Promo::join('assets', 'promos.id', '=', 'assets.promo_id')
+                ->join('brands', 'brands.id', '=', 'promos.brand_id')
+                ->leftJoin(
+                    DB::raw('(SELECT promo_id, COUNT(*) as favorite_count FROM favorites GROUP BY promo_id) AS counts'),
+                    'promos.id',
+                    '=',
+                    'counts.promo_id'
+                )
+                ->select(
+                    'promos.*',
+                    'assets.path',
+                    DB::raw('COALESCE(counts.favorite_count, 0) as favorite_count'),
+                )
+                ->where('brands.id', $id)
+                ->get();
+            return response()->json($promo);
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -112,11 +138,12 @@ class BrandController extends Controller
                     'name' => 'required|string',
                     'address' => 'required|string',
                     'category' => 'required|string',
+                    'description' => 'required|string',
                     'logo' => 'nullable',
                 ],
             );
 
-            $existingRequest = DB::table('seller_requests')->where('brand_name',$request->name)->first();
+            $existingRequest = DB::table('seller_requests')->where('brand_name', $request->name)->first();
 
             if ($request->hasFile('logo') && $existingRequest == null) {
                 $uuid = Str::uuid()->toString();
@@ -131,6 +158,7 @@ class BrandController extends Controller
                     'brand_name' => $request->name,
                     'brand_address' => $request->address,
                     'brand_category' => $request->category,
+                    'description' =>$request->description,
                     'status' => "Awaiting Approval",
                     'brand_image_path' => $filePath,
                 ]);
@@ -154,16 +182,16 @@ class BrandController extends Controller
             throw $e;
         }
     }
-    
 
-    function deleteById($id){
+
+    function deleteById($id) {
         DB::beginTransaction();
         try {
             $deletedBrand = Brand::findOrFail($id);
             $promos = Promo::where('brand_id', $id)->get();
             $reports = Report::where('brand_id', $id)->get();
-            
-            User::where('id',$deletedBrand->user_id)->update([
+
+            User::where('id', $deletedBrand->user_id)->update([
                 'role_id' => 1,
             ]);
             foreach ($promos as $promo) {
