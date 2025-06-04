@@ -11,6 +11,7 @@ use App\Http\Controllers\BrandPromoController;
 use App\Http\Controllers\CloudinaryController;
 use App\Http\Controllers\DriveController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SellerRequestController;
@@ -34,6 +35,8 @@ Route::post('/register',[AuthenticateController::class,'register']);
 Route::post('/login',[AuthenticateController::class,'login']);
 Route::middleware('auth:sanctum')->post('/logout',[AuthenticateController::class,'logout']);
 Route::middleware('auth:sanctum')->get('/user', [AuthenticateController::class, 'user']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 //Promo
 Route::get('/promos',[PromoController::class,'items']);
