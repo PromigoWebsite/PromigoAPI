@@ -61,7 +61,8 @@ class ReportController extends Controller
     public function addReport(Request $request, $id){
         try {
             $request->validate([
-                'value' => 'required'
+                'value' => 'required',
+                'userId' => 'required|numeric'
             ]);
     
             $promo = Promo::join('brands','brands.id','=','promos.brand_id')
@@ -74,7 +75,7 @@ class ReportController extends Controller
                         ->first();
     
             $report = [
-                'user_id' => $promo->user_id,
+                'user_id' => $request->userId,
                 'promo_id' => $id,
                 'brand_id' => $promo->brand_id,
                 'status' => 'On going',
