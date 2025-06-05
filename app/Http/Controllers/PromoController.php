@@ -208,7 +208,7 @@ class PromoController extends Controller {
                 ->first();
             dd($user);
         }
-
+        dd($user);
         return response()->json([
             'isLike' => $isLike ? true : false,
         ]);
