@@ -206,6 +206,7 @@ class PromoController extends Controller {
             $isLike = Favorite::where('promo_id', $id)
                 ->where('user_id', $user->id)
                 ->first();
+            dd($user);
         }
 
         return response()->json([
