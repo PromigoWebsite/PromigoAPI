@@ -90,7 +90,6 @@ class BrandController extends Controller {
 
     public function editBrandById(Request $request, $id) {
         try {
-            // dd($request->all());
             $request->validate(
                 [
                     'name' => 'required|string',
@@ -99,13 +98,13 @@ class BrandController extends Controller {
                     'logo' => 'nullable',
                 ],
             );
-
-            // dd($id);
+            
             $brand = Brand::findOrFail($id);
+            // dd($brand->logo);
 
             if ($request->hasFile('logo')) {
                 $uuid = Str::uuid()->toString();
-                $path = Storage::disk('supabase')->putFileAs('/asset/promo', $request->profile_picture, $id . "_" . $uuid);
+                $path = Storage::disk('supabase')->putFileAs('/asset/brand', $request->logo, $id . "_" . $uuid);
                 Storage::disk('supabase')->delete($brand->logo);
                 $brand->update([
                     'logo' => $path,
