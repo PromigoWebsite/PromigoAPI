@@ -15,5 +15,6 @@ class Promo extends Model
         'description',
         'status',
         'started_at',
+        'terms',
     ];
 }
