@@ -90,11 +90,13 @@ class BrandController extends Controller {
 
     public function editBrandById(Request $request, $id) {
         try {
+            // dd($request->all());
             $request->validate(
                 [
                     'name' => 'required|string',
                     'address' => 'required|string',
                     'category' => 'required|string',
+                    'description' => 'required|string',
                     'logo' => 'nullable',
                 ],
             );
@@ -115,6 +117,7 @@ class BrandController extends Controller {
                 'name' => $request->name,
                 'address' => $request->address,
                 'category' => $request->category,
+                'description' => $request->description,
                 'updated_at' => Carbon::now('UTC'),
             ]);
 
