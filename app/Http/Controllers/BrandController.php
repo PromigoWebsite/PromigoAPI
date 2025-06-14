@@ -23,6 +23,7 @@ class BrandController extends Controller {
         } else {
             //SEARCH
             $brand = Brand::query();
+            $sortingValid = false;
             if ($request->has('search') && $request->search) {
                 $brand = $brand->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
@@ -41,6 +42,10 @@ class BrandController extends Controller {
                         continue;
                     }
                     $brand->orderBy($filter, $value);
+                    $sortingValid = true;
+                }
+                if($sortingValid === false){
+                    $brand->orderByDesc('created_at');
                 }
             }
 

@@ -34,6 +34,7 @@ class BrandPromoController extends Controller {
         } else {
             //SEARCH
             $promo = $this->baseQuery()->where('brands.id', $id);
+            $sortingValid = false;
             if ($request->has('search') && $request->search) {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
@@ -59,6 +60,10 @@ class BrandPromoController extends Controller {
                         continue;
                     }
                     $promo->orderBy($filter, $value);
+                    $sortingValid = true;
+                }
+                if ($sortingValid === false) {
+                    $promo->orderByDesc('created_at');
                 }
             }
 

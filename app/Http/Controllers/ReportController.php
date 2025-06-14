@@ -33,6 +33,7 @@ class ReportController extends Controller
         } else {
             //SEARCH
             $report = $this->baseQuery();
+            $sortingValid = false;
             if ($request->has('search') && $request->search) {
                 $report = $report->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
@@ -50,6 +51,10 @@ class ReportController extends Controller
                         continue;
                     }
                     $report->orderBy($filter, $value);
+                    $sortingValid = true;
+                }
+                if($sortingValid === false){
+                    $report->orderByDesc('created_at');
                 }
             }
 

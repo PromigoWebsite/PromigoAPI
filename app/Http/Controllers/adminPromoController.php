@@ -38,6 +38,7 @@ class adminPromoController extends Controller {
         } else {
             //SEARCH
             $promo = $this->baseQuery();
+            $sortingValid = false;
             if ($request->has('search') && $request->search) {
                 $promo = $promo->whereRaw('LOWER(promos.name) LIKE ?', ['%' . strtolower($request->search) . '%']);
             }
@@ -66,9 +67,12 @@ class adminPromoController extends Controller {
                         continue;
                     }
                     $promo->orderBy($filter, $value);
+                    $sortingValid = true;
+                }
+                if($sortingValid === false){
+                    $promo->orderByDesc('created_at');
                 }
             }
-
             $promo = $promo->paginate($request->per_page);
         }
 
